@@ -4,7 +4,7 @@
   (:import (net.loadbang.osc.data Message)))
 
 
-(def A (atom nil))
+(def A (atom {}))
 
 (defn dispatch-fn [origin address args]
   (reset! A {:origin origin :address address :args args}))
@@ -22,16 +22,54 @@
 
 (.transmit transmitter m)
 
-@A
+(deref A)
 
-(reset! A nil)
+(reset! A {})
 
-:serialosc/device
+(swap! A assoc :C 44)
 
-(defn ff [& {:keys [a b]}] {:A a :B b})
+(def ll
+  (c/device-lister :host "localhost"
+                   :me "localhost"
+                   :port 12002
+                   :callback (fn [& {:keys [id name host port]}]
+                               (swap! A assoc id [name host port]))))
 
-(ff :a 1 :b 3)
+(c/get-devices ll)
 
+(c/close-devices ll)
 
+(def B (atom {}))
 
-(c/list-devices "localhost" 12002 (fn [& args] (reset! A args)))
+(def pp
+  (c/property-listener :host "localhost"
+                       :me "localhost"
+                       :port 10279
+                       :callback (fn [& {:keys [key value]}]
+                                   (swap! B assoc key value))))
+
+(c/get-properties pp)
+
+(c/close-properties pp)
+
+(deref B)
+
+(reset! B {})
+
+:serialosc-device
+
+(def C (atom []))
+
+(def cc (c/connect :host "localhost"
+                   :me "localhost"
+                   :port 10279
+                   :prefix "/babble"
+                   :callback (fn [address args]
+                               (swap! C conj [address args]))))
+
+;; (cc/get-transmitter cc)
+
+(c/close-connection cc)
+
+(deref C)
+(reset! C [])
