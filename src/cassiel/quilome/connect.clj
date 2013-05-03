@@ -1,13 +1,9 @@
 (ns cassiel.quilome.connect
-  (:require [cassiel.quilome [network :as net]])
+  (:require ( cassiel.quilome [network :as net]
+                              [tools :as t]))
   (:import (net.loadbang.osc.data Message)))
 
-(defprotocol DEVICE-LISTER
-  "Device lister."
-  (get-devices [this] "Get sequence of devices.")
-  (close-devices [this] "Close channels." ))
-
-(defn device-lister
+(defn list-devices
   "Open a channel to list devices, calling `callback` with argument map of
    `:id`, `:name`, `:host`, `:port`."
   [& {:keys [host me port callback]}]
@@ -23,22 +19,12 @@
           message (-> (Message. "/serialosc/list")
                       (.addString me)
                       (.addInteger (.getPort receiver)))]
-      (reify DEVICE-LISTER
-        (get-devices
-          [this]
-          (.transmit transmitter message))
+      (.transmit transmitter message)
+      (t/do-after 1000 (fn []
+                         (.close transmitter)
+                         (.close receiver))))))
 
-        (close-devices
-          [this]
-          (.close transmitter)
-          (.close receiver))))))
-
-(defprotocol PROPERTY-LISTER
-  "Device property lister."
-  (get-properties [this] "Get sequence of properties.")
-  (close-properties [this] "Close channels."))
-
-(defn property-listener
+(defn list-properties
   "Open a channel to list properties, calling `callback` with argument map of
    `:key`, `:value`. `:key` is keyword-converted. `:value` can be a vector
    (e.g. for `/sys/size`). I don't think `/sys/host` is very useful: as far as
@@ -55,15 +41,10 @@
           message (-> (Message. "/sys/info")
                       (.addString me)
                       (.addInteger (.getPort receiver)))]
-      (reify PROPERTY-LISTER
-        (get-properties
-          [this]
-          (.transmit transmitter message))
-
-        (close-properties
-          [this]
-          (.close transmitter)
-          (.close receiver))))))
+      (.transmit transmitter message)
+      (t/do-after 1000 (fn []
+                         (.close transmitter)
+                         (.close receiver))))))
 
 (defprotocol DEVICE-CONNECTION
   (get-transmitter [this] "Return the transmitter to the device.")
@@ -92,3 +73,9 @@
           [this]
           (.close transmitter)
           (.close receiver))))))
+
+(defprotocol CONNECTION-CLIENT
+  "A client matching this protocol must be provided for each device."
+  (handle-message [this address args]
+    "Handle OSC - address and args sanitised, prefix removed.")
+  (shutdown [this] "Shut down any other connections or activity."))
