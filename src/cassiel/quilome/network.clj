@@ -5,7 +5,7 @@
            [net.loadbang.osc.data Bundle Message]
            [net.loadbang.osc.exn CommsException]))
 
-(defn- dispatch-message
+(defn dispatch-message
   "Unpack a message and call `f` with host/port, OSC address, and list of args."
   [f
    origin                               ; {:host, :port}

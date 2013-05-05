@@ -49,8 +49,10 @@
   "A client matching this protocol must be provided for each device."
   (get-initial-state [this]
     "Pass in a value for a state variable.")
-  (handle-message [this state address args]
-    "Handle OSC - address and args sanitised, prefix removed. Return new state.")
+  (handle-enc-key [this state enc how]
+    "Handle encoder press. Return new state.")
+  (handle-enc-delta [this state enc delta]
+    "Handle encoder turn.")
   (shutdown [state this] "Shut down any other connections or activity."))
 
 (defprotocol CONNECTION-INFO
@@ -58,7 +60,8 @@
   (get-transmitter [this] "The transmitter")
   (get-prefix [this] "Get the prefix (without waiting for driver interrogation).")
   (get-keys [this] "A set of keys: /sys properties.")
-  (get-key [this k] "Retrieve a key."))
+  (get-key [this k] "Retrieve a key.")
+  (swap-state [this f] "Apply `f` to the current state."))
 
 (defprotocol CONNECTION-SET
   "All the current connections."
@@ -89,18 +92,34 @@
        (when-let [hfn (or (get handlers id)
                           (get handlers name))]
          (let [tx (net/start-transmitter host port)
+               *hstate* (atom nil)
                info (reify CONNECTION-INFO
                       (get-prefix [this] PREFIX)
                       (get-transmitter [this] tx)
                       (get-keys [this] (set (keys (get @*state* id))))
-                      (get-key [this k] (get-in @*state* [id k])))
+                      (get-key [this k] (get-in @*state* [id k]))
+                      ;; Possible race condition when establishing state, so:
+                      (swap-state [this f]
+                        (swap! *hstate* #(when % (f %)))))
 
                handler (hfn info)
-               *hstate* (atom (get-initial-state handler))
+               _ (reset! *hstate* (get-initial-state handler))
                dispatch (fn
                           [_ address args]
-                          (swap! *hstate*
-                                 #(handle-message handler % (t/strip-prefix address) args)))
+
+                          (case (t/strip-prefix address)
+                            "/enc/key"
+                            (let [[enc how] args]
+                              (swap! *hstate*
+                                     #(handle-enc-key handler % enc how)))
+
+                            "/enc/delta"
+                            (let [[enc delta] args]
+                              (swap! *hstate*
+                                     #(handle-enc-delta handler % enc delta)))
+
+                            (println "other message" address args)))
+
                rx (net/start-receiver dispatch)
                host-message (-> (Message. "/sys/host")
                                 (.addString me))

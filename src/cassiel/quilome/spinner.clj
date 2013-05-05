@@ -23,29 +23,42 @@
           renderer (VariableRenderer. (:monome-width m/MANIFEST)
                                       (:monome-height m/MANIFEST)
                                       (ArcVariableOSCOutputter. tx (c/get-prefix info)))
+
           osc-tx (net/start-transmitter out-host out-port)
+
+          incoming-osc
+          (fn [state address args]
+            (case address
+              "/tick"
+              (assoc state :midi
+                     (in/flush-display renderer
+                                       osc-tx
+                                       (:device state)
+                                       (:midi state)
+                                       (nth args 0)))
+
+              (do
+                (println "other" address args)
+                state)
+              ))
+
           osc-rx (net/start-receiver in-port
-                                     (fn [origin address args]
-                                       (.transmit osc-tx (Message. "/got-it"))))]
+                                     (fn [_ address args]
+                                       (c/swap-state
+                                        info
+                                        #(incoming-osc % address args))))]
+
       (reify c/CONNECTION-CLIENT
-        (get-initial-state [this] {:encoders (ty/initial-arc-state 4)})
+        (get-initial-state [this] {:device (ty/initial-arc-state 4)
+                                   :midi {}})
 
-        (handle-message [this state address args]
-          (case address
-            "/enc/key" (let [[enc how] args]
-                         (assoc state :encoders
-                                (in/do-uncover (in/do-press (:encoders state) renderer enc how)
-                                               enc how)))
+        (handle-enc-key [this state enc how]
+          (assoc state :device
+                 (in/do-uncover (in/do-press (:device state) enc how)
+                                enc how)))
 
-            "/enc/delta" (let [[enc delta] args]
-                           (.transmit osc-tx
-                                      (-> (Message. "/delta")
-                                          (.addInteger delta)))
-                           (assoc state :encoders (in/do-delta (:encoders state) enc delta)))
-
-            (do
-              (println address args)
-              state)))
+        (handle-enc-delta [this state enc delta]
+          (assoc state :device (in/do-delta (:device state) enc delta)))
 
         (shutdown [this state]
           (.close osc-tx)

@@ -1,7 +1,9 @@
 (ns cassiel.quilome.spinner.incoming
   (:require (cassiel.quilome.spinner [types :as types]
                                      [flash :as f]
-                                     [manifest :as m]))
+                                     [manifest :as m]
+                                     [paint :as p]
+                                     [midi-out :as midi]))
   (:import (cassiel.quilome.spinner.types EncoderState ArcState)))
 
 (defn- enc-do-button [{v :value-stack
@@ -43,14 +45,23 @@
     state
     (ch-uncover state enc)))
 
-(defn do-press [state renderer enc how]
+(defn do-press [state enc how]
   (println "do-press" enc how)
-  (f/dyn-flash renderer how)
   (ch-button state enc (nth [:off :on] how)))
 
 (defn do-delta [state enc distance]
   (println "do-delta" enc distance)
   (ch-delta state enc distance))
 
-(defn refresh [state renderer]
-  nil)
+(defn- offset-thumb-info [{encoders :encoders} enc offset]
+  "Divide encoder setting by two: 0..127(ish) across 64 LEDs."
+  "Result is encoder stack pos * animation offset * thumb-width."
+  (let [{vs :value-stack idx :selected-idx} (nth encoders enc)]
+    {:i idx
+     :o offset
+     :t (+ (/ (nth vs idx) 2) 1)}))
+
+(defn flush-display [r tx device midi offset]
+  (let [midi' (midi/dyn-ctrl-out tx device midi)]
+    (p/dyn-paint r (map (fn [i] (offset-thumb-info device i offset)) (range 4)))
+    midi'))
