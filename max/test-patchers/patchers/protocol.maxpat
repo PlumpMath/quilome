@@ -8,7 +8,7 @@
 			"architecture" : "x86"
 		}
 ,
-		"rect" : [ 91.0, 151.0, 840.0, 471.0 ],
+		"rect" : [ 1556.0, 439.0, 840.0, 471.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -209,8 +209,8 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 195.0, 80.0, 207.0, 16.0 ],
-					"text" : "/serialosc/list localhost 9876"
+					"patching_rect" : [ 195.0, 80.0, 246.0, 16.0 ],
+					"text" : "/serialosc/list sultanahmet.lan 9876"
 				}
 
 			}
@@ -222,8 +222,8 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 90.0, 130.0, 161.0, 18.0 ],
-					"text" : "udpsend localhost 12002"
+					"patching_rect" : [ 90.0, 130.0, 194.0, 18.0 ],
+					"text" : "udpsend kazlicesme.lan 12002"
 				}
 
 			}

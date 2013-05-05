@@ -10,13 +10,10 @@
   [f
    origin                               ; {:host, :port}
    ^Message m]
-  (let [address (get (re-find #"^/?(.+)+$" (.getAddress m)) 1)
-        args (for
+  (let [args (for
                  [i (range (.getNumArguments m))]
                (.getValue (.getArgument m i)))]
-    (f origin (keyword address) args)
-    ; keywording might be bad: serialosc messages are loaded with "/".
-    ))
+    (f origin (.getAddress m)  #_ (keyword address) args)))
 
 (defn start-receiver
   "Create a receiver socket given a consuming function. The receiver accepts `(.close)`.
