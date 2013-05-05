@@ -15,26 +15,43 @@
                (.getValue (.getArgument m i)))]
     (f origin (.getAddress m)  #_ (keyword address) args)))
 
-(defn start-receiver
-  "Create a receiver socket given a consuming function. The receiver accepts `(.close)`.
-   unlike the Cubewar version, this one determines its own incoming port."
-  [f]
-  (let [rx (proxy
-               [UDPReceiver]
-               []
-             (consumeMessage
-               [socket _date00 m]
-               (let [host (.getHostName socket)
-                     port (.getPort socket)]
-                 (dispatch-message f {:host host :port port} m))))
-        _ (.open rx)]
-
-    (.start (Thread. (reify Runnable
+(defn- start-input [rx]
+  (.start (Thread. (reify Runnable
                        (run [this]
                          (try
                            (dorun (repeatedly #(.take rx)))
-                           (catch CommsException _ nil))))))
-    rx))
+                           (catch CommsException _ nil)))))))
+
+(defn- consume [f socket m]
+  (let [host (.getHostName socket)
+        port (.getPort socket)]
+    (dispatch-message f {:host host :port port} m)))
+
+(defn- make-receiver
+  ([f]
+     (proxy
+         [UDPReceiver]
+         []
+       (consumeMessage [socket _date00 m] (consume f socket m))))
+  ([port f]
+     (proxy
+         [UDPReceiver]
+         [port]
+       (consumeMessage [socket _date00 m] (consume f socket m)))))
+
+(defn start-receiver
+  "Create a receiver socket given a consuming function. The receiver accepts `(.close)`.
+   unlike the Cubewar version, this one determines its own incoming port."
+  ([f]
+     (let [rx (make-receiver f)]
+       (.open rx)
+       (start-input rx)
+       rx))
+  ([port f]
+     (let [rx (make-receiver port f)]
+       (.open rx)
+       (start-input rx)
+       rx)))
 
 (defn start-transmitter
   "Create a transmitter to host and port. The transmitter accepts `(.close)`."

@@ -94,9 +94,12 @@
 (def all
   (c/connect-all CLIENT ME
                  {"monome arc 4"
-                  sp/spin
+                  (sp/spin 9102 "localhost" 9103)
                   }))
 
 (c/get-state all)
 
 (c/shutdown-all all)
+
+
+(-> (Message. "/a") (.addInteger 4) (.getArgument 0))

@@ -51,3 +51,6 @@
 (defn do-delta [state enc distance]
   (println "do-delta" enc distance)
   (ch-delta state enc distance))
+
+(defn refresh [state renderer]
+  nil)
