@@ -11,13 +11,6 @@
 
 (ff)
 
-;;(def ME "localhost")
-;;(def CLIENT "localhost")
-
-(def ME "sultanahmet.lan")
-(def CLIENT "kazlicesme.lan")
-
-
 (def a
   (let [_a (atom {})]
     (c/list-devices :host CLIENT
@@ -96,6 +89,22 @@
                  {"monome arc 4"
                   (sp/spin 9102 "localhost" 9103)
                   }))
+
+;; Running on MacBook:
+
+(def all
+  (c/connect-all "kazlicesme-wired.lan" "sultanahmet.lan"
+                 {"monome arc 4"
+                  (sp/spin 9102 "localhost" 9103)
+                  }))
+;; Running on netbook:
+
+(def all
+  (c/connect-all "localhost" "localhost"
+                 {"monome arc 4"
+                  (sp/spin 9102 "sultanahmet.lan" 9103)
+                  }))
+
 
 (c/get-state all)
 
