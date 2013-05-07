@@ -14,7 +14,7 @@
 
    Arguments here are for the OSC 'side-port' for communication with the media
    host."
-  [in-port out-host out-port]
+  [& {:keys [in-port out-host out-port]}]
 
   (fn
     [info]

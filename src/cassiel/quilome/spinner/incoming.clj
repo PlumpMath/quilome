@@ -46,11 +46,11 @@
     (ch-uncover state enc)))
 
 (defn do-press [state enc how]
-  (println "do-press" enc how)
+  ;;(println "do-press" enc how)
   (ch-button state enc (nth [:off :on] how)))
 
 (defn do-delta [state enc distance]
-  (println "do-delta" enc distance)
+  ;;(println "do-delta" enc distance)
   (ch-delta state enc distance))
 
 (defn- offset-thumb-info [{encoders :encoders} enc offset]

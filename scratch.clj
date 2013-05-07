@@ -82,33 +82,35 @@
 
                       (shutdown [this _] nil)))}))
 
-;; ---
-
-(def all
-  (c/connect-all CLIENT ME
-                 {"monome arc 4"
-                  (sp/spin 9102 "localhost" 9103)
-                  }))
-
 ;; Running on MacBook:
 
 (def all
-  (c/connect-all "kazlicesme-wired.lan" "sultanahmet.lan"
-                 {"monome arc 4"
-                  (sp/spin 9102 "localhost" 9103)
-                  }))
+  (c/connect-all :host "kazlicesme-wired.lan"
+                 :me "sultanahmet.lan"
+                 :handlers {"monome arc 4"
+                            (sp/spin :in-port 9104
+                                     :out-host "localhost"
+                                     :out-port 9105)
+                            "monome arc 2"
+                            (sp/spin :in-port 9106
+                                     :out-host "localhost"
+                                     :out-port 9107)}))
+
 ;; Running on netbook:
 
 (def all
-  (c/connect-all "localhost" "localhost"
-                 {"monome arc 4"
-                  (sp/spin 9102 "sultanahmet.lan" 9103)
-                  }))
+  (c/connect-all :host "localhost"
+                 :me "localhost"
+                 :handlers {"monome arc 4"
+                            (sp/spin :in-port 9104
+                                     :out-host "sultanahmet.lan"
+                                     :out-port 9105)
+                            "monome arc 2"
+                            (sp/spin :in-port 9106
+                                     :out-host "sultanahmet.lan"
+                                     :out-port 9107)}))
 
 
 (c/get-state all)
 
 (c/shutdown-all all)
-
-
-(-> (Message. "/a") (.addInteger 4) (.getArgument 0))

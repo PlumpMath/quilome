@@ -77,8 +77,7 @@
 
    TODO: how to establish the properties? We don't know when they've all
    arrived. (Answer: wrap it into a function.)"
-  [host me handlers]
-
+  [& {:keys [host me handlers]}]
   (let
       [*state* (atom {})
        *shutdown-fns* (atom [])

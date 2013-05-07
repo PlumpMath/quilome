@@ -8,7 +8,7 @@
 			"architecture" : "x86"
 		}
 ,
-		"rect" : [ 61.0, 157.0, 640.0, 480.0 ],
+		"rect" : [ 157.0, 157.0, 370.0, 459.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -31,9 +31,23 @@
 				"box" : 				{
 					"fontname" : "Anonymous Pro",
 					"fontsize" : 12.0,
+					"id" : "obj-6",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 105.0, 160.0, 102.0, 16.0 ],
+					"text" : "host localhost"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"fontname" : "Anonymous Pro",
+					"fontsize" : 12.0,
 					"id" : "obj-15",
 					"maxclass" : "number",
-					"maximum" : 50,
+					"maximum" : 250,
 					"minimum" : 20,
 					"numinlets" : 1,
 					"numoutlets" : 2,
@@ -119,7 +133,7 @@
 					"maxclass" : "newobj",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 30.0, 280.0, 102.0, 18.0 ],
+					"patching_rect" : [ 30.0, 380.0, 102.0, 18.0 ],
 					"text" : "print @popup 1"
 				}
 
@@ -133,7 +147,7 @@
 					"numinlets" : 1,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 30.0, 250.0, 109.0, 18.0 ],
+					"patching_rect" : [ 30.0, 350.0, 109.0, 18.0 ],
 					"text" : "udpreceive 9103"
 				}
 
@@ -148,6 +162,20 @@
 					"numoutlets" : 0,
 					"patching_rect" : [ 30.0, 220.0, 155.0, 18.0 ],
 					"text" : "udpsend localhost 9102"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"fontname" : "Anonymous Pro",
+					"fontsize" : 12.0,
+					"id" : "obj-2",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 105.0, 190.0, 174.0, 16.0 ],
+					"text" : "host kazlicesme-wired.lan"
 				}
 
 			}
@@ -190,10 +218,28 @@
 			}
 , 			{
 				"patchline" : 				{
+					"destination" : [ "obj-1", 0 ],
+					"disabled" : 0,
+					"hidden" : 0,
+					"source" : [ "obj-2", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
 					"destination" : [ "obj-5", 0 ],
 					"disabled" : 0,
 					"hidden" : 0,
 					"source" : [ "obj-4", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-1", 0 ],
+					"disabled" : 0,
+					"hidden" : 0,
+					"source" : [ "obj-6", 0 ]
 				}
 
 			}
