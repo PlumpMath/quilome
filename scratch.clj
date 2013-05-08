@@ -1,5 +1,6 @@
 (ns user
   (:require (cassiel.quilome [spinner :as sp]
+                             [flatscreen :as scr]
                              [network :as net]
                              [connect :as c]
                              [tools :as t]))
@@ -94,7 +95,11 @@
                             "monome arc 2"
                             (sp/spin :in-port 9106
                                      :out-host "localhost"
-                                     :out-port 9107)}))
+                                     :out-port 9107)
+                            "m128-183"
+                            (scr/screen :in-port 9108
+                                        :out-host "localhost"
+                                        :out-port 9109)}))
 
 ;; Running on netbook:
 

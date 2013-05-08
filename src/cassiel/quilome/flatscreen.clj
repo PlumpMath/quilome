@@ -1,41 +1,35 @@
-(ns cassiel.quilome.spinner
-  "Main arc 'spin' application."
+(ns cassiel.quilome.flatscreen
+  "Main grid display."
   (:require (cassiel.quilome [network :as net]
                              [connect :as c]
                              [tools :as t])
-            (cassiel.quilome.spinner [manifest :as m]
-                                     [types :as ty]
-                                     [incoming :as in]))
-  (:import (net.loadbang.shado ArcVariableOSCOutputter VariableRenderer)
+            (cassiel.quilome.flatscreen [manifest :as m]))
+  (:import (net.loadbang.shado SerialOSCBinaryOutputter BinaryRenderer)
            (net.loadbang.osc.data Message)))
 
-(defn spin
+(defn screen
   "Main entry point, given `CONNECTION-INFO`, returning `CONNECTION-CLIENT`.
 
    Arguments here are for the OSC 'side-port' for communication with the media
-   host."
+   host. (Currently we only do input.)"
   [& {:keys [in-port out-host out-port]}]
 
   (fn
     [info]
 
     (let [tx (c/get-transmitter info)
-          renderer (VariableRenderer. (:monome-width m/MANIFEST)
-                                      (:monome-height m/MANIFEST)
-                                      (ArcVariableOSCOutputter. tx (c/get-prefix info)))
+          width (:monome-width m/MANIFEST)
+          renderer (BinaryRenderer. width
+                                    (:monome-height m/MANIFEST)
+                                    (SerialOSCBinaryOutputter. tx width (c/get-prefix info)))
 
           osc-tx (net/start-transmitter out-host out-port)
 
           incoming-osc
           (fn [state address args]
             (case address
-              "/tick"
-              (assoc state :midi
-                     (in/flush-display renderer
-                                       osc-tx
-                                       (:device state)
-                                       (:midi state)
-                                       (nth args 0)))
+              "/shard"                  ; [0/1] f1 f2
+              state
 
               (do
                 (println "other" address args)
@@ -49,19 +43,16 @@
                                         #(incoming-osc % address args))))]
 
       (reify c/CONNECTION-CLIENT
-        (get-initial-state [this] {:device (ty/initial-arc-state 4)
-                                   :midi {}})
+        (get-initial-state [this] {})
 
         (handle-grid-key [this state x y how]
           state)
 
         (handle-enc-key [this state enc how]
-          (assoc state :device
-                 (in/do-uncover (in/do-press (:device state) enc how)
-                                enc how)))
+          state)
 
         (handle-enc-delta [this state enc delta]
-          (assoc state :device (in/do-delta (:device state) enc delta)))
+          state)
 
         (shutdown [this state]
           (.close osc-tx)

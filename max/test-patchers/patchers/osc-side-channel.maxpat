@@ -8,7 +8,7 @@
 			"architecture" : "x86"
 		}
 ,
-		"rect" : [ 157.0, 157.0, 370.0, 459.0 ],
+		"rect" : [ 732.0, 122.0, 370.0, 459.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -28,6 +28,34 @@
 		"digest" : "",
 		"tags" : "",
 		"boxes" : [ 			{
+				"box" : 				{
+					"fontname" : "Anonymous Pro",
+					"fontsize" : 12.0,
+					"id" : "obj-16",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 210.0, 325.0, 135.0, 16.0 ],
+					"text" : "/shard 1 0.24647"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"fontname" : "Anonymous Pro",
+					"fontsize" : 12.0,
+					"id" : "obj-3",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 180.0, 280.0, 109.0, 18.0 ],
+					"text" : "udpreceive 9108"
+				}
+
+			}
+, 			{
 				"box" : 				{
 					"fontname" : "Anonymous Pro",
 					"fontsize" : 12.0,
@@ -222,6 +250,15 @@
 					"disabled" : 0,
 					"hidden" : 0,
 					"source" : [ "obj-2", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-16", 1 ],
+					"disabled" : 0,
+					"hidden" : 0,
+					"source" : [ "obj-3", 0 ]
 				}
 
 			}

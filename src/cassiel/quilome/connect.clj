@@ -49,6 +49,8 @@
   "A client matching this protocol must be provided for each device."
   (get-initial-state [this]
     "Pass in a value for a state variable.")
+  (handle-grid-key [this state x y how]
+    "Handle a button press.")
   (handle-enc-key [this state enc how]
     "Handle encoder press. Return new state.")
   (handle-enc-delta [this state enc delta]
@@ -107,6 +109,11 @@
                           [_ address args]
 
                           (case (t/strip-prefix address)
+                            "/grid/key"
+                            (let [[x y how] args]
+                              (swap! *hstate*
+                                     #(handle-grid-key handler % x y how)))
+
                             "/enc/key"
                             (let [[enc how] args]
                               (swap! *hstate*
