@@ -3,7 +3,8 @@
                              [flatscreen :as scr]
                              [network :as net]
                              [connect :as c]
-                             [tools :as t]))
+                             [tools :as t])
+            (quil [core :as q]))
   (:import (net.loadbang.osc.data Message)))
 
 
@@ -83,39 +84,49 @@
 
                       (shutdown [this _] nil)))}))
 
-;; Running on MacBook:
-
-(def all
-  (c/connect-all :host "kazlicesme-wired.lan"
-                 :me "sultanahmet.lan"
+(defn system [& {:keys [monomes handlers media]}]
+  (c/connect-all :host monomes
+                 :me handlers
                  :handlers {"monome arc 4"
                             (sp/spin :in-port 9104
-                                     :out-host "localhost"
+                                     :out-host media
                                      :out-port 9105)
                             "monome arc 2"
                             (sp/spin :in-port 9106
-                                     :out-host "localhost"
+                                     :out-host media
                                      :out-port 9107)
                             "m128-183"
                             (scr/screen :in-port 9108
-                                        :out-host "localhost"
+                                        :out-host media
                                         :out-port 9109)}))
 
-;; Running on netbook:
 
-(def all
-  (c/connect-all :host "localhost"
-                 :me "localhost"
-                 :handlers {"monome arc 4"
-                            (sp/spin :in-port 9104
-                                     :out-host "sultanahmet.lan"
-                                     :out-port 9105)
-                            "monome arc 2"
-                            (sp/spin :in-port 9106
-                                     :out-host "sultanahmet.lan"
-                                     :out-port 9107)}))
+;; Running on MacBook:
+
+(def all (system :monomes "kazlicesme-wired.lan"
+                 :handlers "sultanahmet.lan"
+                 :media "localhost"))
+
+;; Running on Netbook:
+
+(def all (system :monomes "localhost"
+                 :handlers "localhost"
+                 :media "sultanahmet.lan"))
 
 
 (c/get-state all)
 
 (c/shutdown-all all)
+
+;; Quil-based, codebase on MacBook:
+
+(def s
+  (let [all (system :monomes "kazlicesme-wired.lan"
+                    :handlers "sultanahmet.lan"
+                    :media "localhost")]
+    (q/sketch :title "Sultanahmet"
+              :setup (fn [])
+              :draw (fn [])
+              :on-close (fn [] (c/shutdown-all all)))))
+
+(q/sketch-close s)

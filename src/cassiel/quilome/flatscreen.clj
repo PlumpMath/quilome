@@ -4,7 +4,9 @@
                              [connect :as c]
                              [tools :as t])
             (cassiel.quilome.flatscreen [manifest :as m]))
-  (:import (net.loadbang.shado SerialOSCBinaryOutputter BinaryRenderer)
+  (:import (net.loadbang.shado Frame Block ViewPort
+                               SerialOSCBinaryOutputter BinaryRenderer)
+           (net.loadbang.shado.types LampState)
            (net.loadbang.osc.data Message)))
 
 (defn screen
@@ -31,10 +33,24 @@
               "/shard"                  ; [0/1] f1 f2
               state
 
+              "/flash"                   ; [0/1]
+              (do
+                (.render renderer
+                         (if (pos? (nth args 0))
+                           (.fill (Block. 16 8) LampState/ON)
+                           (Frame.)))
+                state)
+
+              "/position"               ; [0.0..1.0]
+              (let [pos (nth args 0)
+                    index (int (+ 0.5 (* pos 15)))]
+                (.render renderer (-> (Frame.)
+                                      (.add (Block. "1") index 0)))
+                state)
+
               (do
                 (println "other" address args)
-                state)
-              ))
+                state)))
 
           osc-rx (net/start-receiver in-port
                                      (fn [_ address args]
