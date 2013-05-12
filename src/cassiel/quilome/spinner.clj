@@ -6,7 +6,7 @@
             (cassiel.quilome.spinner [manifest :as m]
                                      [types :as ty]
                                      [incoming :as in]))
-  (:import (net.loadbang.shado ArcVariableOSCOutputter VariableRenderer)
+  (:import (net.loadbang.shado ArcVariableOSCOutputter VariableRenderer Frame)
            (net.loadbang.osc.data Message)))
 
 (defn spin
@@ -64,5 +64,6 @@
           (assoc state :device (in/do-delta (:device state) enc delta)))
 
         (shutdown [this state]
+          (.render renderer (Frame.))
           (.close osc-tx)
           (.close osc-rx))))))

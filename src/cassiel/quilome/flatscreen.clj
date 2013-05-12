@@ -30,8 +30,25 @@
           incoming-osc
           (fn [state address args]
             (case address
-              "/shard"                  ; [0/1] f1 f2
-              state
+              "/shard"
+              ;; ["A"/"B"] f0 f1 f2 f3, where the fs are notionally between 0.0 and 1.0, but
+              ;; not limited/normalised.
+              (let [[label & fs] args
+                    row0 (get {"A" 0 "B" 4} label)
+                    ;; Update the state with the appropriate chunk of new values:
+                    state' (t/replace-segment state row0 fs nil)
+                    assemble (fn [frame row val]
+                               (let [val' (mod val 1)
+                                     index (int (+ 0.5 (* val' 15)))]
+                                 (if (> val' 0.01)
+                                   (.add frame (Block. "1") index row)
+                                   frame)))]
+                (.render renderer
+                         (first
+                          (reduce (fn [[frame row] val] [(assemble frame row val) (inc row)])
+                                  [(Frame.) 0]
+                                  state')))
+               state')
 
               "/flash"                   ; [0/1]
               (do
@@ -59,7 +76,8 @@
                                         #(incoming-osc % address args))))]
 
       (reify c/CONNECTION-CLIENT
-        (get-initial-state [this] {})
+        ;; Initial state is eight raw positions (nominally 0.0..1.0).
+        (get-initial-state [this] (repeat 8 0.0))
 
         (handle-grid-key [this state x y how]
           state)
@@ -71,5 +89,6 @@
           state)
 
         (shutdown [this state]
+          (.render renderer (Frame.))
           (.close osc-tx)
           (.close osc-rx))))))
