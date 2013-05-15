@@ -29,13 +29,18 @@
           incoming-osc
           (fn [state address args]
             (case address
-              "/tick"
+              "/tick"                   ; [0..127]
               (assoc state :midi
                      (in/flush-display renderer
                                        osc-tx
                                        (:device state)
                                        (:midi state)
                                        (nth args 0)))
+
+              "/uncover"                ; [encoder-index] [how]
+              (let [[enc how] args]
+                (assoc state :device
+                       (in/do-uncover (:device state) enc how)))
 
               (do
                 (println "other" address args)

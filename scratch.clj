@@ -4,6 +4,8 @@
                              [network :as net]
                              [connect :as c]
                              [tools :as t])
+            (cassiel.quilome.spinner [types :as ty]
+                                     [incoming :as in])
             (quil [core :as q]))
   (:import (net.loadbang.osc.data Message)))
 
@@ -130,3 +132,10 @@
               :on-close (fn [] (c/shutdown-all all)))))
 
 (q/sketch-close s)
+
+(def start {:device (ty/initial-arc-state 4)
+            :midi {}})
+
+start
+
+(in/do-uncover (:device start) 0 1)
