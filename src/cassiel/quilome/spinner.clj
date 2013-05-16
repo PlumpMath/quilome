@@ -5,7 +5,8 @@
                              [tools :as t])
             (cassiel.quilome.spinner [manifest :as m]
                                      [types :as ty]
-                                     [incoming :as in]))
+                                     [incoming :as in]
+                                     [midi-out :as midi]))
   (:import (net.loadbang.shado ArcVariableOSCOutputter VariableRenderer Frame)
            (net.loadbang.osc.data Message)))
 
@@ -29,23 +30,26 @@
           incoming-osc
           (fn [state address args]
             (case address
-              "/tick"                   ; [0..127]
-              (assoc state :midi
-                     (in/flush-display renderer
-                                       osc-tx
-                                       (:device state)
-                                       (:midi state)
-                                       (nth args 0)))
+              "/tick"                   ; [0..127] - responsible for all MIDI output
+              (let [tick (nth args 0)
+                    {:keys [midi device]} state
+                    midi' (midi/ctrl-out osc-tx device midi)]
+                (in/flush-display renderer device tick)
+                (assoc state :midi midi'))
 
               "/uncover"                ; [encoder-index] [how]
               (let [[enc how] args]
                 (assoc state :device
                        (in/do-uncover (:device state) enc how)))
 
+              "/set-layer"               ; [0..127]
+              (let [layer (nth args 0)]
+                (assoc state :device
+                       (in/set-layer (:device state) layer)))
+
               (do
                 (println "other" address args)
-                state)
-              ))
+                state)))
 
           osc-rx (net/start-receiver in-port
                                      (fn [_ address args]

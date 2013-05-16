@@ -45,6 +45,14 @@
     state
     (ch-uncover state enc)))
 
+(defn- to-layer [{v :value-stack
+                  idx :selected-idx
+                  b :button} layer]
+  (EncoderState. v layer b))
+
+(defn set-layer [{e :encoders} layer]
+  (ArcState. (vec (map #(to-layer % layer) e))))
+
 (defn do-press [state enc how]
   ;;(println "do-press" enc how)
   (ch-button state enc (nth [:off :on] how)))
@@ -61,7 +69,5 @@
      :o offset
      :t (+ (/ (nth vs idx) 2) 1)}))
 
-(defn flush-display [r tx device midi offset]
-  (let [midi' (midi/dyn-ctrl-out tx device midi)]
-    (p/dyn-paint r (map (fn [i] (offset-thumb-info device i offset)) (range 4)))
-    midi'))
+(defn flush-display [r device offset]
+  (p/dyn-paint r (map (fn [i] (offset-thumb-info device i offset)) (range 4))))

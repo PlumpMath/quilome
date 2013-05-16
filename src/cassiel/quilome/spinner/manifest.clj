@@ -2,4 +2,4 @@
 
 (def MANIFEST {:monome-width 64
                :monome-height 4
-               :encoder-stack-size 2})
+               :encoder-stack-size 4})

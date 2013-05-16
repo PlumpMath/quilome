@@ -42,8 +42,8 @@
 
 (def all-offs [(repeat-block (Block. "1") 64)
                (repeat-block (Block. "1.1") 64)
-               (repeat-block (Block. "111") 64)
-               (repeat-block (Block. "11.11") 64)])
+               (repeat-block (Block. "111") 32)
+               (repeat-block (Block. "11.11") 32)])
 
 ;; A set of gradiated strips for the thumb.
 

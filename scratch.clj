@@ -131,6 +131,17 @@
               :draw (fn [])
               :on-close (fn [] (c/shutdown-all all)))))
 
+;; Quil-based, all local:
+
+(def s
+  (let [all (system :monomes "localhost"
+                    :handlers "localhost"
+                    :media "localhost")]
+    (q/sketch :title "Localhost"
+              :setup (fn [])
+              :draw (fn [])
+              :on-close (fn [] (c/shutdown-all all)))))
+
 ;; Quil-based, Netbook
 
 (def s
@@ -150,3 +161,9 @@
 start
 
 (in/do-uncover (:device start) 0 1)
+
+(midi/dyn-ctrl-out )
+
+(doall {16 1 17 3})
+
+(int (/ 70 32))

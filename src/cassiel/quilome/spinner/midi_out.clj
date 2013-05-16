@@ -1,36 +1,35 @@
 (ns cassiel.quilome.spinner.midi-out
   (:import (net.loadbang.osc.data Message)))
 
-(def CTRL-BASES [16 80])                ; For two layers, ctrl numbers 16.. and 80..
-(def LAYER-BASE 20)                     ; Layer switch: ctrl numbers 20..
+(def CTRL-BASES [16 20 24 28]) ; For four layers, ctrl numbers 16 upwards...
+(def LAYER-BASE 80)            ; Layer switch: ctrl numbers 20..
 
-(defn- put [tx state ctrl val]
+(defn- put [midi-state tx ctrl val]
   (if
-      (not= (get state ctrl 0) val)
-    (.transmit tx (-> (Message. "/ctrl")
-                      (.addInteger ctrl)
-                      (.addInteger val)))))
+      (= (get midi-state ctrl 0) val)
+    midi-state
+    (do
+      (.transmit tx (-> (Message. "/ctrl")
+                        (.addInteger ctrl)
+                        (.addInteger val)))
+      (assoc midi-state ctrl val))))
 
 (defn- maybe-out [tx midi-state {val :value-stack idx :selected-idx} i]
   (let
       [base-for-selected (nth CTRL-BASES idx)   ; 16 or 80, depending on stack selection.
        enc-ctrl (+ i base-for-selected)             ; actual controller number.
-       new-enc-val (nth val idx)                    ; incoming value.
+       enc-val (nth val idx)                    ; incoming value.
        layer-ctrl (+ i LAYER-BASE)
-       new-layer-val (if (pos? idx) 127 0)
-       next-state (assoc midi-state
-                    enc-ctrl new-enc-val
-                    layer-ctrl new-layer-val)]
+       layer-val (if (pos? idx) 127 0)      ; Not ideal once we have more than two layers!
+       ]
 
-    (dotimes
-        [i 4]
-      (put tx midi-state enc-ctrl new-enc-val)
-      (put tx midi-state layer-ctrl new-layer-val))
+    (-> midi-state
+        (put tx layer-ctrl layer-val)
+        (put tx enc-ctrl enc-val))))
 
-    next-state))
-
-(defn dyn-ctrl-out [tx device midi-state]
+(defn ctrl-out [tx device midi-state]
   (let [encoders (:encoders device)]
-    (reduce (fn [m i] (maybe-out tx m (nth encoders i) i))
-            midi-state
-            (range 4))))
+    (doall
+     (reduce (fn [m i] (maybe-out tx m (nth encoders i) i))
+             midi-state
+             (range 4)))))
