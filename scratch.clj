@@ -131,6 +131,17 @@
               :draw (fn [])
               :on-close (fn [] (c/shutdown-all all)))))
 
+;; Quil-based, Netbook
+
+(def s
+  (let [all (system :monomes "localhost"
+                    :handlers "localhost"
+                    :media "sultanahmet.lan")]
+    (q/sketch :title "Netbook"
+              :setup (fn [] (q/frame-rate 10))
+              :draw (fn [])
+              :on-close (fn [] (c/shutdown-all all)))))
+
 (q/sketch-close s)
 
 (def start {:device (ty/initial-arc-state 4)
