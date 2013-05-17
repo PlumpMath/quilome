@@ -42,15 +42,21 @@
 
 (def all-offs [(repeat-block (Block. "1") 64)
                (repeat-block (Block. "1.1") 64)
+               (repeat-block (Block. "111") 64)
+               (repeat-block (Block. "11.11") 64)
+               (repeat-block (Block. "1") 32)
+               (repeat-block (Block. "1.1") 32)
                (repeat-block (Block. "111") 32)
                (repeat-block (Block. "11.11") 32)])
 
 ;; A set of gradiated strips for the thumb.
 
-(def all-ons [(repeat-block strip-16 16)
-              (repeat-block (quiet-n 2) 4)
-              (repeat-block strip-8 8)
-              (repeat-block (quiet-n 4) 6)])
+(def all-ons
+  (let [strips [(repeat-block strip-16 16)
+                (repeat-block (quiet-n 2) 4)
+                (repeat-block strip-8 8)
+                (repeat-block (quiet-n 4) 6)]]
+    (concat strips strips)))
 
 (defn- paint-into-frame [f enc idx pos thumb-width]
   "pos from 0 to 63, as per LEDs. Thumb-width is the amount to actually show in a window."

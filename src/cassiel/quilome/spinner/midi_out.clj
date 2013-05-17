@@ -1,7 +1,10 @@
 (ns cassiel.quilome.spinner.midi-out
+  (:require (cassiel.quilome.spinner (manifest :as m)))
   (:import (net.loadbang.osc.data Message)))
 
-(def CTRL-BASES [16 20 24 28]) ; For four layers, ctrl numbers 16 upwards...
+
+(def CTRL-BASES (map #(+ 16 (* % 4)) (range (:encoder-stack-size m/MANIFEST))))
+;;(def CTRL-BASES [16 20 24 28]) ; For four layers, ctrl numbers 16 upwards...
 (def LAYER-BASE 80)            ; Layer switch: ctrl numbers 20..
 
 (defn- put [midi-state tx ctrl val]

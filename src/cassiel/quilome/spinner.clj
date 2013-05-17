@@ -42,7 +42,7 @@
                 (assoc state :device
                        (in/do-uncover (:device state) enc how)))
 
-              "/set-layer"               ; [0..127]
+              "/set-layer"               ; [0..n-1]
               (let [layer (nth args 0)]
                 (assoc state :device
                        (in/set-layer (:device state) layer)))

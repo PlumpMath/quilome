@@ -86,22 +86,22 @@
 
                       (shutdown [this _] nil)))}))
 
-(defn system [& {:keys [monomes handlers media]}]
-  (c/connect-all :host monomes
-                 :me handlers
-                 :handlers {"monome arc 4"
-                            (sp/spin :in-port 9104
-                                     :out-host media
-                                     :out-port 9105)
-                            "monome arc 2"
-                            (sp/spin :in-port 9106
-                                     :out-host media
-                                     :out-port 9107)
-                            "m128-183"
-                            (scr/screen :in-port 9108
-                                        :out-host media
-                                        :out-port 9109)}))
 
+(defn system [& {:keys [monomes handlers media]}]
+  (connect-all :host monomes
+               :me handlers
+               :handlers {"monome arc 4"
+                          (sp/spin :in-port 9104
+                                   :out-host media
+                                   :out-port 9105)
+                          "monome arc 2"
+                          (sp/spin :in-port 9106
+                                   :out-host media
+                                   :out-port 9107)
+                          "m128-183"
+                          (scr/screen :in-port 9108
+                                      :out-host media
+                                      :out-port 9109)}))
 
 ;; Running on MacBook:
 
@@ -131,17 +131,6 @@
               :draw (fn [])
               :on-close (fn [] (c/shutdown-all all)))))
 
-;; Quil-based, all local:
-
-(def s
-  (let [all (system :monomes "localhost"
-                    :handlers "localhost"
-                    :media "localhost")]
-    (q/sketch :title "Localhost"
-              :setup (fn [])
-              :draw (fn [])
-              :on-close (fn [] (c/shutdown-all all)))))
-
 ;; Quil-based, Netbook
 
 (def s
@@ -152,6 +141,30 @@
               :setup (fn [] (q/frame-rate 10))
               :draw (fn [])
               :on-close (fn [] (c/shutdown-all all)))))
+
+;; ---- Quil-based, all local, inlined:
+
+(def s
+  (let [all (c/connect-all :host "localhost"
+                           :me "localhost"
+                           :handlers {"monome arc 4"
+                                      (sp/spin :in-port 9104
+                                               :out-host "localhost"
+                                               :out-port 9105)
+                                      "monome arc 2"
+                                      (sp/spin :in-port 9106
+                                               :out-host "localhost"
+                                               :out-port 9107)
+                                      "m128-183"
+                                      (scr/screen :in-port 9108
+                                                  :out-host "localhost"
+                                                  :out-port 9109)})]
+    (q/sketch :title "Localhost"
+              :setup (fn [] (q/frame-rate 1))
+              :draw (fn [])
+              :on-close (fn [] (c/shutdown-all all)))))
+
+;; ---- END.
 
 (q/sketch-close s)
 
@@ -167,3 +180,5 @@ start
 (doall {16 1 17 3})
 
 (int (/ 70 32))
+
+(map #(+ 16 (* % 4)) (range 8))
