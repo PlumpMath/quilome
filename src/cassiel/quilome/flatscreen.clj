@@ -46,7 +46,13 @@
                                          [(assemble frame row val) (inc row)])
                                        [(Frame.) 0]
                                        fs)
-                    state' (assoc state label frame')
+                    points' (t/replace-segment (:points state)
+                                               (get {"A" 0 "B" 4} label)
+                                               fs
+                                               nil)
+                    state' (assoc state
+                             label frame'
+                             :points points')
                     composite (-> (Frame.)
                                   (.add (get state' "A") 0 0)
                                   (.add (get state' "B") 0 (/ height 2)))]
@@ -82,7 +88,8 @@
       (reify c/CONNECTION-CLIENT
         ;; Initial state is two (half-)frames: "A" and "B".
         (get-initial-state [this] {"A" (Frame.)
-                                   "B" (Frame.)})
+                                   "B" (Frame.)
+                                   :points (repeat 8 0.0)})
 
         (handle-grid-key [this state x y how]
           state)

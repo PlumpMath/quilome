@@ -138,6 +138,8 @@
                [x [host-message port-message prefix-message]]
              (.transmit tx x))
 
+           (swap! *state* assoc-in [id :handler-state] (fn [] @*hstate*))
+           
            (swap! *shutdown-fns* conj (fn []
                                         (shutdown handler @*hstate*)
                                         (.close tx)
@@ -148,7 +150,7 @@
         :me me
         :port port
         :callback (fn [& {:keys [key value]}]
-                    (swap! *state* assoc-in [id key] value)))))
+                    (swap! *state* assoc-in [id :driver key] value)))))
 
     (reify CONNECTION-SET
          (get-state [this] @*state*)

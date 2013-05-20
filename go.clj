@@ -3,6 +3,7 @@
                              [flatscreen :as scr]
                              [network :as net]
                              [connect :as c]
+                             [draw :as d]
                              [tools :as t])
             (cassiel.quilome.spinner [types :as ty]
                                      [incoming :as in])
@@ -24,8 +25,20 @@
                                       "m128-183"
                                       (scr/screen :in-port 9108
                                                   :out-host host
-                                                  :out-port 9109)})]
+                                                  :out-port 9109)})
+        draw (fn []
+               (let [m128 (get (c/get-state all) "m128-183")
+                     points (if m128
+                              (:points ((:handler-state m128)))
+                              (map (partial * q/PI 0.125) (range 8)))]
+                 (d/do-draw points)))]
     (q/sketch :title "Music Tech Fest"
-              :setup (fn [] (q/frame-rate 1))
-              :draw (fn [])
+              :size [1400 1000]
+              :setup (fn []
+                       (q/frame-rate 25)
+                       (q/smooth)
+                       (q/stroke-weight 5)
+                       (q/stroke 127 95 63 255)
+                       (q/fill 255 127 0 50))
+              :draw draw
               :on-close (fn [] (c/shutdown-all all)))))
