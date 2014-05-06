@@ -16,6 +16,9 @@
 
 (ff)
 
+(def CLIENT "localhost")
+(def ME "localhost")
+
 (def a
   (let [_a (atom {})]
     (c/list-devices :host CLIENT
@@ -31,7 +34,7 @@
   (let [_b (atom {})]
     (c/list-properties :host CLIENT
                        :me ME
-                       :port 15332
+                       :port 11016
                        :callback (fn [& {:keys [key value]}]
                                    (swap! _b assoc key value)))
     _b))
@@ -44,7 +47,7 @@
 
 (def cc (c/connect :host CLIENT
                    :me ME
-                   :port 15332
+                   :port 10279
                    :prefix "/babble"
                    :callback (fn [address args]
                                (swap! C conj [address args]))))
